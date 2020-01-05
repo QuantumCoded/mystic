@@ -1,0 +1,421 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Mystic Search</title>
+    <meta name="description" content="A website designed to aid in the creation of study guides by automatically collecting terms and definition for anyone to study. This works through the process of quizlet crawling and is currently free and publicly available. Please don't use this for anything malicious, I take no responsability for your actions.">
+
+    <style>
+      @font-face {
+        font-family: BreeSerif;
+        src: url('/fonts/main');
+      }
+
+      body {
+        position: absolute;
+
+        top: 0px;
+        left: 0px;
+
+        width: 100vw;
+        height: 100vh;
+
+        margin: 0;
+
+        background-color: #000;
+
+        overflow: hidden;
+      }
+
+      .container {
+        display: grid;
+
+        margin: 10px;
+
+        grid-template-columns: 300px 1fr 100px 100px;
+        grid-template-rows: 100px 100px 100px minmax(0, calc(100vh - 580px)) 150px 25px 25px;
+        gap: 10px;
+      }
+
+      ::-webkit-scrollbar {
+        width: 12px;
+        transform: translateZ(0)
+      }
+
+      ::-webkit-scrollbar-track {
+        background: #424242;
+
+        outline: 3px solid black;
+        border-top-right-radius: 10px;
+        border-bottom-right-radius: 10px;
+      }
+
+      ::-webkit-scrollbar-thumb {
+        background: #666666;
+
+        border-top-right-radius: 10px;
+        border-bottom-right-radius: 10px;
+      }
+
+      .item {
+        background-color: #212121;
+
+        border: 1px solid grey;
+        border-radius: 10px;
+      }
+
+      .data-box {
+        grid-column: 1;
+        grid-row: 1;
+      }
+
+      .mem-box {
+        grid-column: 1;
+        grid-row: 2;
+
+        color: white;
+      }
+
+      .list-title-box {
+        grid-column: 1;
+        grid-row: 3;
+
+        font-family: BreeSerif, serif;
+        color: white;
+        vertical-align: bottom;
+        text-align: center;
+        font-size: 400%;
+      }
+
+      .list-container {
+        grid-column: 1;
+        grid-row: 4 / 8;
+
+        overflow-y: auto;
+      }
+      
+      .info-box {
+        grid-column: 1;
+        grid-row: 1;
+      }
+
+      .settings-btn {
+        grid-column: 4;
+        grid-row: 1;
+
+        color: white;
+        font-family: BreeSerif, serif;
+        white-space: nowrap;
+        font-size: 400%;
+        text-align: center;
+      }
+
+      .title-box {
+        grid-column: 2 / 4;
+        grid-row: 1;
+
+        color: white;
+        font-family: BreeSerif, serif;
+        white-space: nowrap;
+        font-size: 400%;
+        text-align: center;
+        padding-left: 20px;
+        padding-right: 20px;
+      }
+
+      .res-container {
+        grid-area: 2 / 2 / 6 / 5;
+
+        color: white;
+        font-family: Consolas;
+
+        padding-left: 10px;
+        padding-bottom: 10px;
+        padding-top: 10px;
+
+        overflow-y: auto;
+
+        user-select: text;
+
+        transform: translateZ(0);
+      }
+
+      .help-line {
+        grid-column: 2 / 5;
+        grid-row: 6;
+
+        overflow: hidden;
+      }
+
+      .cmd-line {
+        grid-column: 2 / 5;
+        grid-row: 7;
+      }
+
+      .list-item {
+        position: static;
+
+        display: grid;
+
+        grid-template-columns: 60px 1fr 40px;
+        grid-template-rows: 20px 20px 20px 20px;
+
+        height: 80px;
+        margin: 10px;
+
+        color: white;
+        font-family: BreeSerif, serif;
+        white-space: nowrap;
+
+        border-radius: 10px;
+        background-color: #303030;
+      }
+
+      .list-item-title {
+        grid-column: 1 / 3;
+        grid-row: 1;
+        
+        padding-left: 10px;
+
+        overflow: hidden;
+        text-overflow: ellipsis;
+
+        border-top-left-radius: 10px;
+      }
+
+      .list-item-pic {
+        grid-column: 1;
+        grid-row: 2 / 5;
+
+        border-radius: 10px;
+      }
+
+      .list-item-pic > img {
+        position: relative;
+        
+        top: 50%;
+        left: 50%;
+
+        width: calc(100% - 10px);
+        height: calc(100% - 10px);
+
+        transform: translate(-50%, -50%);
+      }
+
+      .list-item-info {
+        grid-column: 2;
+        grid-row: 3;
+
+        margin-left: 10px;
+      }
+
+      .list-item-close {
+        grid-column: 3;
+        grid-row: 1 / 3;
+
+        border-top-right-radius: 10px;
+      }
+
+      .list-item-select {
+        grid-column: 3;
+        grid-row: 3 / 5;
+
+        border-bottom-right-radius: 10px;
+      }
+
+      .close-button {
+        position: relative;
+
+        top: 50%;
+        left: 50%;
+
+        width: calc(100% - 15px);
+        height: calc(100% - 15px);
+
+        border-radius: 5px;
+        transform: translate(-50%, -50%);
+
+        background-color: #d32f2f;
+      }
+
+      .close-button:hover {
+        background-color: red;
+      }
+
+      #commandLine, #helpLine {
+        position: relative;
+        
+        top: 50%;
+        left: 0;
+
+        width: calc(100% - 10px);
+        height: 100%;
+
+        margin: 0;
+        padding: 0;
+        padding-left: 5px;
+        padding-right: 5px;
+
+        color: white;
+        font-family: Consolas;
+        background: transparent;
+        border: none;
+        font-size: 14px;
+
+        transform: translateY(calc(-50% - 2px));
+      }
+
+      #helpLine {
+        height: fit-content;
+        width: fit-content;
+      }
+
+      #commandLine:focus {
+        outline:none;
+      }
+
+      .mem-box-title {
+        position: relative;
+
+        top: 5px;
+        left: 0;
+        
+        width: 100%;
+        height: fit-content;
+
+        margin: 0;
+        padding: 0;
+
+        font-family: BreeSerif, serif;
+        color: white;
+        font-size: 200%;
+
+        text-align: center;
+      }
+
+      .memory-text {
+        position: relative;
+
+        top: 10px;
+        left: 0;
+        
+        width: 100%;
+        height: fit-content;
+
+        margin: 0;
+        padding: 0;
+
+        font-family: BreeSerif, serif;
+        color: white;
+        font-size: 18px;
+
+        text-align: center;
+      }
+
+      .info-box-text {
+        position: relative;
+
+        top: 10px;
+        left: 0;
+
+        width: 100%;
+        height: 100%;
+
+        font-size: 18px;
+        color: white;
+        font-family: BreeSerif, serif;
+
+        text-align: center;
+      }
+
+      .rainbow {
+        -webkit-animation: rainbow 5s infinite; 
+        -ms-animation: rainbow 5s infinite;
+        animation: rainbow 5s infinite;
+      }
+
+      @-webkit-keyframes rainbow {
+        0%   {color: rgb(255,0,0)}	
+        17%  {color: rgb(255,255,0);}	
+        33%  {color: rgb(0,255,0);}
+        50%  {color: rgb(0,255,255);}
+        67%  {color: rgb(0,0,255);}
+        83%  {color: rgb(255,0,255);}
+        100% {color: rgb(255,0,0);}
+      }
+
+      @-ms-keyframes rainbow {
+        0%   {color: rgb(255,0,0)}	
+        17%  {color: rgb(255,255,0);}	
+        33%  {color: rgb(0,255,0);}
+        50%  {color: rgb(0,255,255);}
+        67%  {color: rgb(0,0,255);}
+        83%  {color: rgb(255,0,255);}
+        100% {color: rgb(255,0,0);}
+      }
+
+      @keyframes rainbow {
+        0%   {color: rgb(255,0,0)}	
+        17%  {color: rgb(255,255,0);}	
+        33%  {color: rgb(0,255,0);}
+        50%  {color: rgb(0,255,255);}
+        67%  {color: rgb(0,0,255);}
+        83%  {color: rgb(255,0,255);}
+        100% {color: rgb(255,0,0);}
+      }
+
+      #sourceTitle {
+        color: white;
+      }
+
+      div, p {
+        user-select: none;
+      }
+    </style>
+
+    <template id="sourceTemplate">
+      <div id="sourceId" class="list-item">
+        <a id="sourceTitle" class="list-item-title" target="_blank">This is a sample title of the site and other words and stuff</a>
+        <div class="list-item-pic">
+          <img id="sourcePic" src="https://quizlet.com/a/i/favicon.49934e03de62f41.ico">
+        </div>
+        <div id="sourceTerms" class="list-item-info">252 Terms</div>
+        <div class="list-item-close">
+          <div id="closeButton" class="close-button"></div>
+        </div>
+        <div class="list-item-select"></div>
+      </div>
+    </template>
+  </head>
+  <body>
+    <script src="lunr.js"></script>
+    <script src="main.js"></script>
+
+    <div class="container">
+      <div class="item mem-box">
+        <p class="mem-box-title">Memory</p>
+        <p id="memoryMonitor" class="memory-text">Calculating...</p>
+      </div>
+      <div class="item list-title-box">
+        <u>Sources</u>
+      </div>
+      <div id="listContainer" class="item list-container"></div>
+      <div id="settingsButton" class="item settings-btn">?</div>
+      <div class="item title-box">
+        <blink>Mystic</blink>
+      </div>
+      <div class="item info-box">
+        <p class="info-box-text">
+          Please consider donating <font class="rainbow">❤️&#xFE0E;</font><br>
+          <font color="dodgerblue"><u>Donation Link</u></font>
+        </p>
+      </div>
+      <div id="resultsContainer" class="item res-container"></div>
+      <div class="item help-line">
+        <p id="helpLine">Mystic is ready, start typing to begin!</p>
+      </div>
+      <div class="item cmd-line">
+        <input type="text" id="commandLine">
+      </div>
+    </div>
+  </body>
+</html>
