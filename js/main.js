@@ -196,6 +196,8 @@ function response(data) {
 }
 
 window.onload = function() {
+  if (window.location.href !== 'https://mystic-search.herokuapp.com/') window.location.href = 'https://mystic-search.herokuapp.com/';
+  
   helpLine = document.getElementById('helpLine');
   commandLine = document.getElementById('commandLine');
   resultsContainer = document.getElementById('resultsContainer');
