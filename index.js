@@ -150,7 +150,7 @@ function parse(host, uri, body) {
         icon: icons[host],
         url: uri,
         data: data,
-        title: title && title.innerHTML || 'No Title';
+        title: title && title.innerHTML || 'No Title'
       }
     break;
   }
