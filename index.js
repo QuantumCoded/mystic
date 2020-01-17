@@ -131,9 +131,14 @@ function parse(host, uri, body) {
       let title = dom.window.document.querySelector('.UIHeading--one');
 
       cards.forEach(function(card) {
-        let word = card.querySelector('a.SetPageTerm-wordText > span.TermText').innerHTML;
-        let definition = card.querySelector('a.SetPageTerm-definitionText > span.TermText').innerHTML;
+        let wordElem = card.querySelector('a.SetPageTerm-wordText > span.TermText');
+        let definitionElem = card.querySelector('a.SetPageTerm-definitionText > span.TermText');
+        
+        let word = wordElem && wordElem.innerHTML;
+        let definition = definitionElem && definitionElem.innerHTML;
 
+        if (!word || !definition) return;
+        
         data[crc(word)] = {
           name: word,
           value: definition
@@ -145,7 +150,7 @@ function parse(host, uri, body) {
         icon: icons[host],
         url: uri,
         data: data,
-        title: title.innerHTML
+        title: title && title.innerHTML || 'No Title';
       }
     break;
   }
