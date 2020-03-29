@@ -71,7 +71,7 @@ function XHR(url,cb,headers,method,post,contenttype) {
       return null;
     }
   }
-  requestTimeout = setTimeout(function() {xhr.abort(); cb(xhr); }, 10000);
+  requestTimeout = setTimeout(function() {xhr.abort(); cb(xhr); }, 30000);
   xhr.onreadystatechange = function() {
     if (xhr.readyState != 4) return;
     clearTimeout(requestTimeout);
