@@ -57,7 +57,7 @@ class Job {
     this.status = 'STARTED';
 
     googleSearch(this.query, (function(error, result) {
-      if (error != null) return this._error(error);
+      if (error != null) return this._error(60, error);
 
       this._process(
         result.data.items.map(item => item.cacheId),
@@ -96,7 +96,7 @@ class Job {
       .then((function(parsedArray) {
         this._complete(ids, parsedArray)
       }).bind(this))
-      .catch(this._error.bind(this));
+      .catch(this._error.bind(99, this));
   }
 
 
@@ -130,11 +130,11 @@ class Job {
    * @param {Error} error
    * @returns void
    */
-  _error(error) {
+  _error(error, line) {
     this.status = 'ERRORED';
     this.error = error;
 
-    console.log('error', error);
+    console.log(line, 'error', error);
   }
 }
 
