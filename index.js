@@ -96,7 +96,7 @@ class Job {
       .then((function(parsedArray) {
         this._complete(ids, parsedArray)
       }).bind(this))
-      .catch(this._error.bind(99, this));
+      .catch((e) => this._error.bind(this)(99, e));
   }
 
 
